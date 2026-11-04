@@ -1,0 +1,27 @@
+{
+  "normal": {
+    "mechanical_failure": 0.14738751375999992,
+    "electrical_failure": 0.06808840999999997,
+    "wear": 0.17999999999999972,
+    "overload": 0.14999999999999986
+  },
+  "thermal_vibration": {
+    "mechanical_failure": 0.6283493699783158,
+    "electrical_failure": 0.4446517492649365,
+    "wear": 0.5521771376184748,
+    "overload": 0.7152749980133415
+  },
+  "electrical_clues": {
+    "mechanical_failure": 0.035971484424372556,
+    "electrical_failure": 0.30806093819398134,
+    "wear": 0.15882812525319256,
+    "overload": 0.3461106437675168
+  },
+  "multiple": {
+    "mechanical_failure": 0.8236383973335621,
+    "electrical_failure": 0.4719370693271763,
+    "wear": 0.6247138393168266,
+    "overload": 0.7890191062896657
+  },
+  "sensitivity_delta": 0.5234908633325481
+}

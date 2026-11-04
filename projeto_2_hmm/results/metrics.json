@@ -1,0 +1,45 @@
+{
+  "accuracy": 0.8555555555555555,
+  "macro_f1": 0.740255290028333,
+  "confusion_matrix": [
+    [
+      41,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      5,
+      29,
+      2,
+      0,
+      0
+    ],
+    [
+      1,
+      7,
+      2,
+      3,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      21,
+      4
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      61
+    ]
+  ],
+  "log_likelihood": -256.97180315923777,
+  "baum_welch_iterations": 40,
+  "baum_welch_initial_log_likelihood": -1179.3827456846961,
+  "baum_welch_final_log_likelihood": -1160.1933622685317
+}

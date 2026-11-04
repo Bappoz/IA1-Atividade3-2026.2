@@ -1,0 +1,25 @@
+{
+  "raw_position_rmse": 1.954303548183986,
+  "filtered_position_rmse": 1.1760824244181545,
+  "raw_position_mae": 1.5435028839111566,
+  "filtered_position_mae": 0.9725894426075428,
+  "noise_comparison": {
+    "0.25": {
+      "raw_rmse": 0.4885758870459966,
+      "filtered_rmse": 0.3786366839154003
+    },
+    "1.0": {
+      "raw_rmse": 0.9771517740919928,
+      "filtered_rmse": 0.6886244157665702
+    },
+    "4.0": {
+      "raw_rmse": 1.954303548183986,
+      "filtered_rmse": 1.1760824244181545
+    },
+    "16.0": {
+      "raw_rmse": 3.908607096367972,
+      "filtered_rmse": 1.9017688433850684
+    }
+  },
+  "mismatched_assumption_rmse": 1.385756014401692
+}
