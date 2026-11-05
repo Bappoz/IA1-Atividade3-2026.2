@@ -2,6 +2,7 @@
 from __future__ import annotations
 from itertools import product
 from typing import Dict, Iterable, Mapping
+import numpy as np
 
 State = Dict[str, bool]
 
@@ -17,8 +18,11 @@ class BayesianNetwork:
             raise ValueError("Cada nó precisa possuir uma CPT.")
         self._validate_dag()
         for node in self.nodes:
+            expected_keys = {tuple(values) for values in product([False, True], repeat=len(self.parents[node]))}
+            if set(self.cpts[node]) != expected_keys:
+                raise ValueError(f"CPT incompleta ou com chaves extras para '{node}'.")
             for value in self.cpts[node].values():
-                if not 0 <= value <= 1:
+                if not isinstance(value, (int, float)) or not 0 <= value <= 1:
                     raise ValueError("Probabilidades devem estar em [0, 1].")
 
     def _validate_dag(self) -> None:
@@ -44,6 +48,8 @@ class BayesianNetwork:
         """Calcula a probabilidade conjunta de uma atribuição completa."""
         if set(assignment) != set(self.nodes):
             raise ValueError("A atribuição deve informar todos os nós.")
+        if not all(isinstance(value, (bool, np.bool_)) for value in assignment.values()):
+            raise ValueError("Atribuições devem ser booleanas.")
         result = 1.0
         for node in self.nodes:
             key = tuple(assignment[parent] for parent in self.parents[node])

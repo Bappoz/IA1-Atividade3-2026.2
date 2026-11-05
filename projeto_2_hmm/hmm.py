@@ -13,16 +13,24 @@ class DiscreteHMM:
         self._validate()
 
     def _validate(self):
-        if self.transition.shape[0] != self.transition.shape[1]:
+        if self.transition.ndim != 2 or self.transition.shape[0] != self.transition.shape[1]:
             raise ValueError("A matriz de transição deve ser quadrada.")
-        if self.emission.shape[0] != self.transition.shape[0]:
+        if self.emission.ndim != 2 or self.emission.shape[0] != self.transition.shape[0]:
             raise ValueError("Número de estados inconsistente.")
-        if not np.allclose(self.transition.sum(1), 1) or not np.allclose(self.emission.sum(1), 1):
+        if self.initial.ndim != 1 or len(self.initial) != self.transition.shape[0]:
+            raise ValueError("Distribuição inicial inconsistente com o número de estados.")
+        if not all(np.all(np.isfinite(matrix)) and np.all(matrix >= 0)
+                   for matrix in (self.transition, self.emission, self.initial)):
+            raise ValueError("Probabilidades devem ser finitas e não negativas.")
+        if (not np.allclose(self.transition.sum(1), 1)
+                or not np.allclose(self.emission.sum(1), 1)):
             raise ValueError("Linhas de A e B devem somar 1.")
         if not np.isclose(self.initial.sum(), 1):
             raise ValueError("Distribuição inicial inválida.")
 
     def sample(self, length, rng):
+        if length < 0:
+            raise ValueError("O comprimento da sequência não pode ser negativo.")
         states, observations = [], []
         state = rng.choice(len(self.initial), p=self.initial)
         for _ in range(length):
@@ -33,15 +41,22 @@ class DiscreteHMM:
 
     def forward(self, observations):
         observations = np.asarray(observations, dtype=int)
+        self._validate_observations(observations)
+        if len(observations) == 0:
+            raise ValueError("A sequência de observações não pode ser vazia.")
         alpha = np.zeros((len(observations), len(self.initial)))
         scales = np.zeros(len(observations))
         alpha[0] = self.initial * self.emission[:, observations[0]]
         scales[0] = alpha[0].sum()
+        if scales[0] <= 0:
+            raise ValueError("A sequência possui probabilidade zero no modelo.")
         alpha[0] /= scales[0]
         for t in range(1, len(observations)):
             alpha[t] = (alpha[t - 1] @ self.transition) * self.emission[:, observations[t]]
             scales[t] = alpha[t].sum()
-            alpha[t] /= max(scales[t], np.finfo(float).tiny)
+            if scales[t] <= 0:
+                raise ValueError("A sequência possui probabilidade zero no modelo.")
+            alpha[t] /= scales[t]
         return alpha, scales
 
     def log_likelihood(self, observations):
@@ -50,11 +65,14 @@ class DiscreteHMM:
 
     def viterbi(self, observations):
         observations = np.asarray(observations, dtype=int)
+        self._validate_observations(observations)
+        if len(observations) == 0:
+            raise ValueError("A sequência de observações não pode ser vazia.")
         n = len(self.initial)
-        tiny = np.finfo(float).tiny
-        log_a = np.log(np.maximum(self.transition, tiny))
-        log_b = np.log(np.maximum(self.emission, tiny))
-        log_pi = np.log(np.maximum(self.initial, tiny))
+        with np.errstate(divide="ignore"):
+            log_a = np.log(self.transition)
+            log_b = np.log(self.emission)
+            log_pi = np.log(self.initial)
         delta = np.empty((len(observations), n))
         psi = np.zeros((len(observations), n), dtype=int)
         delta[0] = log_pi + log_b[:, observations[0]]
@@ -70,6 +88,13 @@ class DiscreteHMM:
 
     def baum_welch(self, sequences, iterations=30, tolerance=1e-5):
         """Estima A, B e pi por EM; retorna log-verossimilhanças."""
+        sequences = [np.asarray(sequence, dtype=int) for sequence in sequences]
+        if not sequences or any(len(sequence) == 0 for sequence in sequences):
+            raise ValueError("Baum-Welch requer ao menos uma sequência não vazia.")
+        for sequence in sequences:
+            self._validate_observations(sequence)
+        if iterations < 1 or tolerance < 0:
+            raise ValueError("Iterações devem ser positivas e tolerância não negativa.")
         history = []
         for _ in range(iterations):
             a_num = np.zeros_like(self.transition); a_den = np.zeros(len(self.initial))
@@ -98,6 +123,12 @@ class DiscreteHMM:
             if len(history) > 1 and abs(history[-1] - history[-2]) < tolerance:
                 break
         return history
+
+    def _validate_observations(self, observations):
+        if observations.ndim != 1 or not np.issubdtype(observations.dtype, np.integer):
+            raise ValueError("Observações devem ser um vetor de inteiros.")
+        if np.any(observations < 0) or np.any(observations >= self.emission.shape[1]):
+            raise ValueError("Há símbolos fora do vocabulário de emissões.")
 
 
 def build_hmm() -> DiscreteHMM:

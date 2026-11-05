@@ -15,6 +15,12 @@ def test_bayesian_posterior_is_probability():
     assert 0 < value < 1
 
 
+def test_bayesian_rejects_incomplete_cpt():
+    with np.testing.assert_raises(ValueError):
+        from bayesian_network import BayesianNetwork
+        BayesianNetwork({"x": ()}, {"x": {}})
+
+
 def test_hmm_forward_and_viterbi():
     model = build_hmm()
     observations = np.array([0, 1, 2, 3, 4])
@@ -25,6 +31,21 @@ def test_hmm_forward_and_viterbi():
     assert len(path) == 5 and np.isfinite(score) and np.all(scales > 0)
 
 
+def test_hmm_rejects_empty_and_impossible_sequences():
+    model = build_hmm()
+    with np.testing.assert_raises(ValueError):
+        model.forward([])
+    with np.testing.assert_raises(ValueError):
+        model.viterbi([99])
+
+
+def test_hmm_viterbi_respects_zero_probability_transitions():
+    from hmm import DiscreteHMM
+    model = DiscreteHMM([[0, 1], [1, 0]], [[1, 0], [0, 1]], [1, 0])
+    path, _ = model.viterbi([0, 1, 0, 1])
+    assert np.array_equal(path, [0, 1, 0, 1])
+
+
 def test_kalman_covariance_stays_symmetric():
     f = KalmanFilter([[1, 1], [0, 1]], [[1, 0]], np.eye(2) * .01,
                      [[1]], [0, 1], np.eye(2))
@@ -32,3 +53,8 @@ def test_kalman_covariance_stays_symmetric():
     _, covariance, _, _ = f.update([1.])
     assert np.allclose(covariance, covariance.T)
     assert np.all(np.linalg.eigvalsh(covariance) >= -1e-10)
+
+
+def test_kalman_rejects_inconsistent_dimensions():
+    with np.testing.assert_raises(ValueError):
+        KalmanFilter([[1, 0]], [[1, 0]], np.eye(2), [[1]], [0, 0], np.eye(2))

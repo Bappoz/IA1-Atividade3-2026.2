@@ -15,7 +15,7 @@ python3 projeto_3_kalman/main.py
 pytest -q
 ```
 
-Cada `main.py` grava figuras em `results/`, métricas em `metrics.json` e recompila o relatório PDF localmente:
+Cada `main.py` grava figuras em `results/` e métricas em `metrics.json`. Para recompilar um relatório PDF localmente:
 
 ```bash
 cd projeto_1_redes_bayesianas && pdflatex -interaction=nonstopmode report.tex
