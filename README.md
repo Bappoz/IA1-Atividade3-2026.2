@@ -4,9 +4,9 @@ Portfólio reproduzível sobre **monitoramento inteligente e diagnóstico de fal
 
 **Relatório principal:** `report_geral.pdf`, com identificação acadêmica, proposta integrada, metodologia, resultados dos três projetos, discussão comparativa e referências. Os PDFs dentro dos subdiretórios são relatórios técnicos auxiliares de cada projeto.
 
-1. `projeto_1_redes_bayesianas`: diagnóstico probabilístico por enumeração exata em uma Rede Bayesiana.
-2. `projeto_2_hmm`: identificação temporal de estados operacionais por HMM, com Forward escalonado, Viterbi e Baum–Welch.
-3. `projeto_3_kalman`: estimação de posição e velocidade por Filtro de Kalman linear com atualização de Joseph.
+1. `projeto_1_redes_bayesianas/main.py`: diagnóstico probabilístico por enumeração exata em uma Rede Bayesiana.
+2. `projeto_2_hmm/main.py`: identificação temporal de estados operacionais por HMM, com Forward escalonado, Viterbi e Baum–Welch.
+3. `projeto_3_kalman/main.py`: estimação de posição e velocidade por Filtro de Kalman linear com atualização de Joseph.
 
 ## Execução
 
@@ -17,7 +17,7 @@ python3 projeto_3_kalman/main.py
 pytest -q
 ```
 
-Cada `main.py` grava figuras em `results/` e métricas em `metrics.json`. Para recompilar o relatório geral:
+Cada projeto possui um único arquivo executável `main.py`, que contém o tratamento, os experimentos, as métricas e a geração das figuras. Ele grava resultados em `results/`. Para recompilar o relatório geral:
 
 ```bash
 pdflatex -interaction=nonstopmode report_geral.tex
